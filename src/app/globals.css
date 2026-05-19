@@ -1,26 +1,121 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
+
+/* Refined Pastel Theme with High Definition */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Ultra-light lavender tint for a fresh background */
+  --background: #fdfcff; 
+  /* Deep Slate-Purple for text (clearer than pure grey) */
+  --foreground: #2d264d; 
+  
+  --card: #ffffff;
+  --card-foreground: #2d264d;
+  
+  /* Vibrant Pastel Purple - keeps the "soft" vibe but adds "pop" */
+  --primary: #8b5cf6; 
+  /* White text on primary buttons for maximum crispness */
+  --primary-foreground: #ffffff; 
+  
+  /* Subtle tinted borders to define shapes without harsh lines */
+  --border: #ede9fe; 
+  --input: #ede9fe;
+  
+  --muted: #f5f3ff;
+  --muted-foreground: #7c7491;
+  
+  --accent: #f5f3ff;
+  --accent-foreground: #8b5cf6;
+  
+  --radius: 1rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Force Light Mode & Global Reset */
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, #f9f7ff 0%, #ffffff 100%) !important;
+  color: var(--foreground) !important;
+  min-height: 100vh;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Remove any dark mode interference */
+.dark, [data-theme="dark"] {
+  --background: #fdfcff !important;
+  --foreground: #2d264d !important;
+  background-color: #fdfcff !important;
+  color: #2d264d !important;
+}
+
+/* Enhanced Cards */
+.card, .auth-card {
+  background: white !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 1.5rem;
+  /* Soft colored shadow to make it feel "airy" */
+  box-shadow: 
+    0 20px 25px -5px rgba(139, 92, 246, 0.08), 
+    0 8px 10px -6px rgba(139, 92, 246, 0.04) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-card {
+  max-width: 450px;
+  width: 100%;
+  padding: 2.5rem;
+  /* Slightly stronger shadow for the main focal point (Login) */
+  box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.15) !important;
+}
+
+/* Buttons - Vivid Pastel */
+button, .btn-primary {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #7c3aed !important; /* Slightly deeper on hover */
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3) !important;
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Input Fields - Clean & Defined */
+input, select, textarea {
+  background-color: #ffffff !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 0.75rem !important;
+  padding: 0.625rem 1rem !important;
+  color: var(--foreground) !important;
+  transition: all 0.2s ease !important;
+}
+
+input:focus {
+  outline: none !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1) !important;
+}
+
+/* Labels & Typography */
+label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+h1, h2, h3 {
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
