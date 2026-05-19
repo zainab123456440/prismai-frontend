@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
-import type { TooltipValueType } from "recharts"
-
+// ✅ Add this instead
+// ✅ Add this
+type TooltipValueType = string | number | (string | number)[]
 import { cn } from "@/app/lib/utils"
 
 // Format: { THEME_NAME: CSS_SELECTOR }
