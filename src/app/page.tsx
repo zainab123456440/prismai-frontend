@@ -39,6 +39,8 @@ type Message = { role: 'user' | 'assistant'; content: string };
 const getDocId = (doc: DocumentType): string =>
   doc.document_id ?? doc.id ?? doc._id ?? doc.filename;
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -158,7 +160,7 @@ export default function Home() {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('http://127.0.0.1:8000/upload/', {
+      const res = await fetch(`${API_URL}/upload/`, {
         method: 'POST',
         body: formData,
         headers: { Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
@@ -174,7 +176,7 @@ export default function Home() {
 
   const handleDeleteDoc = async (docId: string) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/documents/${docId}`, {
+      const res = await fetch(`${API_URL}/documents/${docId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
       });
@@ -225,7 +227,7 @@ export default function Home() {
           <CardTitle className="text-4xl font-black tracking-tight bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent">
             PrismAI
           </CardTitle>
-          <p className="text-muted-foreground mt-2 text-sm">Intelligent Document Assistant</p>
+          <p className="text-muted-foreground mt-2 text-sm">Refract your documents into brilliant insights</p>
         </CardHeader>
 
         <CardContent className="space-y-5 px-8 pb-10">
