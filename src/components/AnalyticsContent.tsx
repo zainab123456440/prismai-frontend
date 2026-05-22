@@ -23,7 +23,7 @@ interface QueryHistoryItem {
   created_at?: string; timestamp?: string; response_time?: number;
 }
 
-const API = 'http://127.0.0.1:8000';
+const API = 'https://prismai-backend-3hsi.onrender.com/';
 
 // ── Indigo palette (light-mode) ───────────────────────────────────────────────
 const C = {
