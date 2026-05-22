@@ -1,6 +1,6 @@
 // src/app/lib/api.ts
 
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'https://prismai-backend-3hsi.onrender.com/';
 
 const getToken = () =>
   typeof window !== 'undefined' ? localStorage.getItem('token') : null;
