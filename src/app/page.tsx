@@ -329,20 +329,29 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ── Top nav — mobile only, sits just below header ── */}
-      <nav className="md:hidden bg-white border-b border-border flex items-center justify-around px-2 shrink-0 shadow-sm">
-        {navItems.map(({ id, label, Icon }) => (
+      {/* ── Icon-only nav — mobile only, just below header ── */}
+      <nav className="md:hidden bg-white border-b border-border shrink-0 flex items-center justify-around px-6 py-2">
+        {navItems.map(({ id, Icon }) => (
           <button
             key={id}
             onClick={() => setTab(id)}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-all ${
-              tab === id
-                ? 'border-purple-600 text-purple-600'
-                : 'border-transparent text-gray-400 hover:text-gray-600'
-            }`}
+            className="flex flex-col items-center gap-1.5 px-5 py-1.5 relative group"
           >
-            <Icon size={16} strokeWidth={tab === id ? 2.5 : 1.8} />
-            <span>{label}</span>
+            <div className={`p-2 rounded-xl transition-all duration-200 ${
+              tab === id
+                ? 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md shadow-purple-200'
+                : 'bg-transparent group-hover:bg-purple-50'
+            }`}>
+              <Icon
+                size={18}
+                className={tab === id ? 'text-white' : 'text-gray-400 group-hover:text-purple-500'}
+                strokeWidth={tab === id ? 2.5 : 1.8}
+              />
+            </div>
+            {/* active dot */}
+            <span className={`w-1 h-1 rounded-full transition-all duration-200 ${
+              tab === id ? 'bg-purple-500 scale-100' : 'bg-transparent scale-0'
+            }`} />
           </button>
         ))}
       </nav>
@@ -350,6 +359,7 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* ── Sidebar — desktop only ── */}
+
         <div className="hidden md:flex w-60 border-r border-border bg-white p-4 flex-col shrink-0">
           <nav className="space-y-1">
             {navItems.map(({ id, label, Icon }) => (
@@ -567,9 +577,6 @@ export default function Home() {
 
         </main>
       </div>
-
-
-
     </div>
   );
 }
