@@ -99,18 +99,16 @@ export default function Home() {
     checkAuth().finally(() => setIsLoading(false));
   }, [checkAuth]);
 
-  // ── Polling: only runs when a token exists ────────────────────────────────
+  // ── Polling ───────────────────────────────────────────────────────────────
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (localStorage.getItem('token')) {
-        loadDocuments();
-      }
+      if (localStorage.getItem('token')) loadDocuments();
     }, 8000);
     return () => clearInterval(interval);
   }, [loadDocuments]);
 
-  // ── Auto-scroll on new messages ───────────────────────────────────────────
+  // ── Auto-scroll ───────────────────────────────────────────────────────────
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -190,6 +188,14 @@ export default function Home() {
       alert('Delete failed');
     }
   };
+
+  // ── Nav items (shared between sidebar + bottom nav) ───────────────────────
+
+  const navItems = [
+    { id: 'chat',      label: 'Chat',      Icon: MessageSquare },
+    { id: 'docs',      label: 'Documents', Icon: FileText      },
+    { id: 'analytics', label: 'Analytics', Icon: BarChart3     },
+  ] as const;
 
   // ── Loading screen ────────────────────────────────────────────────────────
 
@@ -292,8 +298,8 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col bg-[#f9f7ff]">
 
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-white/90 backdrop-blur-md flex items-center px-6 justify-between z-50 shrink-0 shadow-sm">
+      {/* ── Header ── */}
+      <header className="h-14 border-b border-border bg-white/90 backdrop-blur-md flex items-center px-3 md:px-6 justify-between z-50 shrink-0 shadow-sm">
         <div className="flex items-center gap-2.5">
           <div className="p-1.5 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg shadow-sm">
             <Sparkles className="text-white" size={15} />
@@ -302,12 +308,15 @@ export default function Home() {
             PrismAI
           </h1>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-full">
-            <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 border border-gray-100 px-2 md:px-3 py-1.5 rounded-full">
+            <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center shrink-0">
               <User size={10} className="text-white" />
             </div>
-            <span className="font-medium text-xs">{user.full_name ?? user.email}</span>
+            {/* Hide name on very small screens */}
+            <span className="font-medium text-xs hidden sm:inline truncate max-w-[120px]">
+              {user.full_name ?? user.email}
+            </span>
           </div>
           <Button
             variant="ghost"
@@ -322,14 +331,10 @@ export default function Home() {
 
       <div className="flex flex-1 overflow-hidden">
 
-        {/* Sidebar */}
-        <div className="w-60 border-r border-border bg-white p-4 flex flex-col shrink-0">
+        {/* ── Sidebar — desktop only ── */}
+        <div className="hidden md:flex w-60 border-r border-border bg-white p-4 flex-col shrink-0">
           <nav className="space-y-1">
-            {([
-              { id: 'chat',      label: 'Chat',      Icon: MessageSquare },
-              { id: 'docs',      label: 'Documents', Icon: FileText      },
-              { id: 'analytics', label: 'Analytics', Icon: BarChart3     },
-            ] as const).map(({ id, label, Icon }) => (
+            {navItems.map(({ id, label, Icon }) => (
               <Button
                 key={id}
                 variant={tab === id ? 'default' : 'ghost'}
@@ -358,14 +363,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Main content */}
-        <main className="flex-1 overflow-auto p-6">
+        {/* ── Main content ── */}
+        <main className="flex-1 overflow-auto p-3 md:p-6 pb-20 md:pb-6">
 
           {/* CHAT */}
           {tab === 'chat' && (
             <div className="h-full flex flex-col">
               {selectedDocId ? (
-                <div className="mb-4 p-4 bg-white border border-border rounded-2xl flex items-center gap-3 shrink-0 shadow-sm">
+                <div className="mb-3 md:mb-4 p-3 md:p-4 bg-white border border-border rounded-2xl flex items-center gap-3 shrink-0 shadow-sm">
                   <div className="p-2 bg-purple-100 rounded-xl">
                     <FileText className="text-purple-600" size={15} />
                   </div>
@@ -380,7 +385,7 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                <div className="mb-4 p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-center gap-3 shrink-0">
+                <div className="mb-3 md:mb-4 p-3 md:p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-center gap-3 shrink-0">
                   <AlertCircle size={15} className="text-amber-500 shrink-0" />
                   <p className="text-sm text-amber-700 font-medium">
                     Select a document from the Documents tab to start chatting
@@ -388,7 +393,7 @@ export default function Home() {
                 </div>
               )}
 
-              <ScrollArea className="flex-1 bg-white border border-border rounded-3xl p-6 mb-4 shadow-sm">
+              <ScrollArea className="flex-1 bg-white border border-border rounded-3xl p-3 md:p-6 mb-3 md:mb-4 shadow-sm">
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center gap-3 py-20">
                     <div className="p-5 bg-purple-50 rounded-3xl">
@@ -399,13 +404,13 @@ export default function Home() {
                   </div>
                 ) : (
                   messages.map((m, i) => (
-                    <div key={i} className={`mb-5 flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div key={i} className={`mb-4 md:mb-5 flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                       {m.role === 'assistant' && (
-                        <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mr-2.5 shrink-0 mt-0.5 shadow-sm">
+                        <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mr-2 shrink-0 mt-0.5 shadow-sm">
                           <Sparkles size={11} className="text-white" />
                         </div>
                       )}
-                      <div className={`max-w-[75%] p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                      <div className={`max-w-[85%] md:max-w-[75%] p-3 md:p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
                         m.role === 'user'
                           ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-br-sm'
                           : 'bg-gray-50 border border-gray-100 text-gray-800 rounded-bl-sm'
@@ -416,8 +421,8 @@ export default function Home() {
                   ))
                 )}
                 {chatLoading && (
-                  <div className="flex justify-start mb-5">
-                    <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mr-2.5 shrink-0 shadow-sm">
+                  <div className="flex justify-start mb-4 md:mb-5">
+                    <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mr-2 shrink-0 shadow-sm">
                       <Sparkles size={11} className="text-white" />
                     </div>
                     <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl rounded-bl-sm">
@@ -432,7 +437,7 @@ export default function Home() {
                 <div ref={messagesEndRef} />
               </ScrollArea>
 
-              <div className="flex gap-3 shrink-0">
+              <div className="flex gap-2 md:gap-3 shrink-0">
                 <Input
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
@@ -444,7 +449,7 @@ export default function Home() {
                 <Button
                   onClick={handleAsk}
                   disabled={!selectedDocId || chatLoading}
-                  className="h-12 px-5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md transition-all"
+                  className="h-12 px-4 md:px-5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md transition-all shrink-0"
                 >
                   {chatLoading ? <Loader2 size={17} className="animate-spin" /> : <Send size={17} />}
                 </Button>
@@ -454,15 +459,16 @@ export default function Home() {
 
           {/* DOCUMENTS */}
           {tab === 'docs' && (
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               <Card
                 className="border-2 border-dashed border-gray-200 hover:border-purple-400 bg-white hover:bg-purple-50/20 cursor-pointer transition-all duration-200"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <CardContent className="p-16 text-center">
+                {/* Reduced padding on mobile */}
+                <CardContent className="p-8 md:p-16 text-center">
                   <div className="flex flex-col items-center gap-3">
-                    <div className="p-5 bg-gray-50 rounded-3xl">
-                      <Upload size={34} className="text-gray-300" />
+                    <div className="p-4 md:p-5 bg-gray-50 rounded-3xl">
+                      <Upload size={30} className="text-gray-300" />
                     </div>
                     <div>
                       <p className="text-base font-semibold text-gray-500">Click to upload a document</p>
@@ -474,7 +480,7 @@ export default function Home() {
               </Card>
 
               {docs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                <div className="flex flex-col items-center justify-center py-12 md:py-16 gap-3">
                   <div className="p-5 bg-gray-50 rounded-3xl">
                     <FileText size={30} className="text-gray-200" />
                   </div>
@@ -482,7 +488,7 @@ export default function Home() {
                   <p className="text-xs text-gray-300">Upload a file above to get started</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   {docs.map((doc) => {
                     const id = getDocId(doc);
                     const isActive = selectedDocId === id;
@@ -493,7 +499,7 @@ export default function Home() {
                           isActive ? 'border-purple-200 bg-purple-50/30 shadow-sm' : ''
                         }`}
                       >
-                        <CardContent className="p-5 flex justify-between items-center gap-3">
+                        <CardContent className="p-4 md:p-5 flex justify-between items-center gap-3">
                           <div className="flex items-center gap-3 min-w-0">
                             <div className={`p-2.5 rounded-xl shrink-0 ${isActive ? 'bg-purple-100' : 'bg-gray-100'}`}>
                               <FileText size={15} className={isActive ? 'text-purple-600' : 'text-gray-400'} />
@@ -543,6 +549,23 @@ export default function Home() {
 
         </main>
       </div>
+
+      {/* ── Bottom nav — mobile only ── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-border flex items-center justify-around px-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+        {navItems.map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              tab === id ? 'text-purple-600' : 'text-gray-400'
+            }`}
+          >
+            <Icon size={20} strokeWidth={tab === id ? 2.5 : 1.8} />
+            <span className="text-[10px] font-semibold">{label}</span>
+          </button>
+        ))}
+      </nav>
+
     </div>
   );
 }
