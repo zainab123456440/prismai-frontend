@@ -329,6 +329,24 @@ export default function Home() {
         </div>
       </header>
 
+      {/* ── Top nav — mobile only, sits just below header ── */}
+      <nav className="md:hidden bg-white border-b border-border flex items-center justify-around px-2 shrink-0 shadow-sm">
+        {navItems.map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-all ${
+              tab === id
+                ? 'border-purple-600 text-purple-600'
+                : 'border-transparent text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            <Icon size={16} strokeWidth={tab === id ? 2.5 : 1.8} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
+
       <div className="flex flex-1 overflow-hidden">
 
         {/* ── Sidebar — desktop only ── */}
@@ -364,7 +382,7 @@ export default function Home() {
         </div>
 
         {/* ── Main content ── */}
-        <main className="flex-1 overflow-auto p-3 md:p-6 pb-20 md:pb-6">
+        <main className="flex-1 overflow-auto p-3 md:p-6">
 
           {/* CHAT */}
           {tab === 'chat' && (
@@ -550,21 +568,7 @@ export default function Home() {
         </main>
       </div>
 
-      {/* ── Bottom nav — mobile only ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-border flex items-center justify-around px-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-        {navItems.map(({ id, label, Icon }) => (
-          <button
-            key={id}
-            onClick={() => setTab(id)}
-            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
-              tab === id ? 'text-purple-600' : 'text-gray-400'
-            }`}
-          >
-            <Icon size={20} strokeWidth={tab === id ? 2.5 : 1.8} />
-            <span className="text-[10px] font-semibold">{label}</span>
-          </button>
-        ))}
-      </nav>
+
 
     </div>
   );

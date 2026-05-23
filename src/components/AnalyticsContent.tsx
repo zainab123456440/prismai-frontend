@@ -1,6 +1,19 @@
 'use client';
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
+
+// ── Responsive hook ───────────────────────────────────────────────────────────
+function useWindowWidth() {
+  const [width, setWidth] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1024
+  );
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return width;
+}
 import {
   BarChart, Bar,
   XAxis, YAxis,
@@ -25,7 +38,6 @@ interface QueryHistoryItem {
 
 const API = 'https://prismai-backend-3hsi.onrender.com';
 
-// ── Indigo palette (light-mode) ───────────────────────────────────────────────
 const C = {
   pageBg:    '#f5f5ff',
   cardBg:    '#ffffff',
@@ -46,7 +58,6 @@ const C = {
   textMid: '#374151',
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function extractLabel(item: Record<string, unknown>): string {
   return String(item.date ?? item.day ?? item.created_at ?? item.timestamp ?? item.label ?? item.name ?? item.period ?? '');
 }
@@ -95,7 +106,7 @@ const ChartTooltip = ({active,payload,label,unit=''}: any) => {
   );
 };
 
-// ── Stat Card ─────────────────────────────────────────────────────────────────
+// ── Stat Card — enhanced ──────────────────────────────────────────────────────
 function StatCard({icon,label,value,sub,accent,accentBg,trend}:{
   icon:string;label:string;value:string;sub:string;
   accent:string;accentBg:string;trend?:string;
@@ -103,20 +114,48 @@ function StatCard({icon,label,value,sub,accent,accentBg,trend}:{
   const [hov,setHov]=useState(false);
   const empty = value==='—';
   return (
-    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{
-      position:'relative', overflow:'hidden', borderRadius:18, padding:'22px 20px 18px',
-      background: hov ? C.i50 : C.cardBg,
-      border:`1.5px solid ${hov?C.i300:C.i100}`,
-      boxShadow: hov ? `0 8px 24px rgba(99,102,241,0.14)` : `0 1px 4px rgba(99,102,241,0.07)`,
-      transition:'all 0.22s cubic-bezier(.4,0,.2,1)', cursor:'default',
-    }}>
-      <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${accent},${accent}88)`}} />
+    <div
+      onMouseEnter={()=>setHov(true)}
+      onMouseLeave={()=>setHov(false)}
+      style={{
+        position:'relative', overflow:'hidden', borderRadius:20, padding:'24px 22px 20px',
+        background: hov
+          ? `linear-gradient(145deg, ${accentBg} 0%, #fff 60%)`
+          : C.cardBg,
+        border:`1.5px solid ${hov ? accent+'55' : C.i100}`,
+        boxShadow: hov
+          ? `0 12px 32px ${accent}22, 0 2px 8px ${accent}10`
+          : `0 1px 4px rgba(99,102,241,0.07)`,
+        transition:'all 0.25s cubic-bezier(.4,0,.2,1)', cursor:'default',
+      }}
+    >
+      {/* top accent bar */}
+      <div style={{
+        position:'absolute',top:0,left:0,right:0,height:3,
+        background:`linear-gradient(90deg,${accent},${accent}55,transparent)`,
+        opacity: hov ? 1 : 0.7,
+        transition:'opacity 0.25s',
+      }}/>
 
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+      {/* shimmer line on hover */}
+      {hov && (
         <div style={{
-          width:40,height:40,borderRadius:11,
-          background:accentBg, border:`1.5px solid ${accent}25`,
-          display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.15rem',
+          position:'absolute',top:3,left:'20%',right:'20%',height:1,
+          background:`linear-gradient(90deg,transparent,${accent}44,transparent)`,
+        }}/>
+      )}
+
+      {/* icon + trend row */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
+        <div style={{
+          width:44,height:44,borderRadius:13,
+          background:`linear-gradient(135deg,${accentBg},${accentBg}cc)`,
+          border:`1.5px solid ${accent}30`,
+          boxShadow:`0 2px 8px ${accent}18`,
+          display:'flex',alignItems:'center',justifyContent:'center',
+          fontSize:'1.2rem',
+          transition:'transform 0.2s',
+          transform: hov ? 'scale(1.08)' : 'scale(1)',
         }}>{icon}</div>
         {trend&&(
           <div style={{
@@ -128,15 +167,35 @@ function StatCard({icon,label,value,sub,accent,accentBg,trend}:{
         )}
       </div>
 
+      {/* value */}
       <div style={{
-        fontSize:empty?'1.5rem':'2.15rem', fontWeight:800,
-        color:empty?'#d1d5db':C.text,
-        letterSpacing:'-0.03em', lineHeight:1.1, marginBottom:5,
+        fontSize: empty ? '1.5rem' : '2.2rem',
+        fontWeight:800,
+        color: empty ? '#d1d5db' : hov ? accent : C.text,
+        letterSpacing:'-0.03em', lineHeight:1.1, marginBottom:6,
         fontFamily:"'JetBrains Mono','Fira Mono',monospace",
+        transition:'color 0.25s',
       }}>{value}</div>
 
-      <div style={{fontSize:11,fontWeight:700,color:C.textMid,letterSpacing:'0.06em',textTransform:'uppercase',marginBottom:2}}>{label}</div>
-      <div style={{fontSize:12,color:C.textSub}}>{sub}</div>
+      {/* label */}
+      <div style={{
+        fontSize:11,fontWeight:700,color: hov ? accent : C.textMid,
+        letterSpacing:'0.06em',textTransform:'uppercase',marginBottom:3,
+        transition:'color 0.25s',
+      }}>{label}</div>
+
+      {/* sub */}
+      <div style={{fontSize:12,color:C.textSub,lineHeight:1.4}}>{sub}</div>
+
+      {/* bottom glow on hover */}
+      {hov && (
+        <div style={{
+          position:'absolute',bottom:-20,right:-20,
+          width:80,height:80,borderRadius:'50%',
+          background:`radial-gradient(circle,${accent}18,transparent 70%)`,
+          pointerEvents:'none',
+        }}/>
+      )}
     </div>
   );
 }
@@ -153,10 +212,10 @@ function SectionLabel({children}: {children:React.ReactNode}) {
 }
 
 // ── Chart Card ────────────────────────────────────────────────────────────────
-function ChartCard({title,badge,badgeAccent=C.i600,desc,rightNode,children,empty,emptyIcon}:{
+function ChartCard({title,badge,badgeAccent=C.i600,desc,rightNode,children,empty,emptyIcon,mobile}:{
   title:string;badge?:string;badgeAccent?:string;
   desc?:string;rightNode?:React.ReactNode;
-  children:React.ReactNode;empty:boolean;emptyIcon?:string;
+  children:React.ReactNode;empty:boolean;emptyIcon?:string;mobile?:boolean;
 }) {
   return (
     <div style={{
@@ -181,7 +240,7 @@ function ChartCard({title,badge,badgeAccent=C.i600,desc,rightNode,children,empty
           </div>
           {desc&&<p style={{margin:'4px 0 0',fontSize:12,color:C.textSub}}>{desc}</p>}
         </div>
-        {rightNode}
+        {!mobile && rightNode}
       </div>
 
       {empty ? (
@@ -316,11 +375,15 @@ export default function AnalyticsContent() {
 
   const totalDocs = userStats?.total_documents??userStats?.user_docs??(userStats?.docs_count as number|undefined);
 
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth < 640;
+
+  // ── Stat cards — "Most Active Day" now uses 🔥 (no calendar, no date in icon) ──
   const statCards = [
-    { icon:'💬', label:'Total Queries',   value:safeVal(calculatedTotalQueries), sub:'all time data',          accent:C.i600,   accentBg:C.i50 },
+    { icon:'💬', label:'Total Queries',   value:safeVal(calculatedTotalQueries), sub:'all time data',             accent:C.i600,   accentBg:C.i50       },
     { icon:'⚡', label:'Avg Response',    value:safeVal(calculatedAvgLatency,n=>`${n.toFixed(0)}ms`), sub:'average system latency', accent:'#7c3aed', accentBg:'#f5f3ff' },
-    { icon:'📄', label:'Documents',       value:safeVal(totalDocs),              sub:'uploaded to system',     accent:'#0891b2', accentBg:'#ecfeff' },
-    { icon:'📆', label:'Most Active Day', value:userStats?.most_active_day?fmtDate(userStats.most_active_day):'—', sub:'peak usage threshold', accent:'#d97706', accentBg:'#fffbeb' },
+    { icon:'📄', label:'Documents',       value:safeVal(totalDocs),              sub:'uploaded to system',        accent:'#0891b2', accentBg:'#ecfeff'   },
+    { icon:'🔥', label:'Most Active Day', value:userStats?.most_active_day?fmtDate(userStats.most_active_day):'—', sub:'peak usage day',  accent:'#d97706', accentBg:'#fffbeb' },
   ];
 
   if (loading) return (
@@ -333,7 +396,7 @@ export default function AnalyticsContent() {
 
   return (
     <div style={{
-      padding:'2.5rem 1.5rem 5rem',
+      padding: isMobile ? '1.25rem 0.75rem 3rem' : '2.5rem 1.5rem 5rem',
       minHeight:'100vh',
       background:C.pageBg,
       fontFamily:"'Outfit','DM Sans',system-ui,sans-serif",
@@ -402,7 +465,7 @@ export default function AnalyticsContent() {
         {/* ── Stat Cards ── */}
         <div style={{marginBottom:'2.5rem'}}>
           <SectionLabel>Key Performance Metrics</SectionLabel>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:16}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:16}}>
             {statCards.map(c=><StatCard key={c.label} {...c} />)}
           </div>
         </div>
@@ -445,10 +508,25 @@ export default function AnalyticsContent() {
         {/* ── Response Chart ── */}
         <div style={{marginBottom:'1.5rem'}}>
           <SectionLabel>Response Assessment</SectionLabel>
+          {/* On mobile: show avg latency as a pill above the chart instead of the rightNode */}
+          {isMobile && calculatedAvgLatency !== null && (
+            <div style={{
+              display:'flex',alignItems:'center',gap:8,marginBottom:10,
+              padding:'8px 14px',borderRadius:10,
+              background:'#f5f3ff',border:'1.5px solid #ddd6fe',
+              width:'fit-content',
+            }}>
+              <span style={{fontSize:11,fontWeight:700,color:'#7c3aed',textTransform:'uppercase',letterSpacing:'0.06em'}}>Avg Latency</span>
+              <span style={{fontSize:'1.3rem',fontWeight:800,color:'#7c3aed',fontFamily:"'JetBrains Mono',monospace",lineHeight:1}}>
+                {calculatedAvgLatency}<span style={{fontSize:'0.75rem',marginLeft:2,fontWeight:600}}>ms</span>
+              </span>
+            </div>
+          )}
           <ChartCard
             title="System Speed Profile" badge="Latency" badgeAccent="#7c3aed"
-            desc="Average backend engine latency calculated dynamically (milliseconds)"
+            desc={isMobile ? undefined : "Average backend engine latency calculated dynamically (milliseconds)"}
             empty={responseChartData.length===0} emptyIcon="⚡"
+            mobile={isMobile}
             rightNode={calculatedAvgLatency!==null?(
               <div style={{textAlign:'right'}}>
                 <div style={{fontSize:'1.9rem',fontWeight:800,color:'#7c3aed',letterSpacing:'-0.04em',lineHeight:1,fontFamily:"'JetBrains Mono',monospace"}}>
@@ -458,8 +536,11 @@ export default function AnalyticsContent() {
               </div>
             ):null}
           >
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={responseChartData} margin={{top:10,right:10,left:-20,bottom:0}}>
+            <ResponsiveContainer width="100%" height={isMobile ? 220 : 280}>
+              <BarChart
+                data={responseChartData}
+                margin={{top:10, right:isMobile?4:10, left:isMobile?-28:-20, bottom:0}}
+              >
                 <defs>
                   <linearGradient id="rGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%"   stopColor="#8b5cf6" stopOpacity={0.9}/>
@@ -467,16 +548,34 @@ export default function AnalyticsContent() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke={C.i100} vertical={false}/>
-                <XAxis dataKey="label" tick={{fontSize:11,fill:C.textSub}} tickLine={false} axisLine={false}
-                  interval={responseChartData.length>12?Math.floor(responseChartData.length/8):0}/>
-                <YAxis tick={{fontSize:11,fill:C.textSub}} tickLine={false} axisLine={false} width={45}
-                  tickFormatter={v=>v>=1000?`${(v/1000).toFixed(1)}s`:`${v}ms`}/>
+                <XAxis
+                  dataKey="label"
+                  tick={{fontSize: isMobile ? 9 : 11, fill:C.textSub}}
+                  tickLine={false} axisLine={false}
+                  interval={isMobile
+                    ? (responseChartData.length > 6 ? Math.ceil(responseChartData.length / 4) : 0)
+                    : (responseChartData.length > 12 ? Math.floor(responseChartData.length / 8) : 0)
+                  }
+                />
+                <YAxis
+                  tick={{fontSize: isMobile ? 9 : 11, fill:C.textSub}}
+                  tickLine={false} axisLine={false}
+                  width={isMobile ? 32 : 45}
+                  tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(1)}s` : `${v}`}
+                />
                 <Tooltip content={<ChartTooltip unit="ms"/>} cursor={{fill:`${C.i100}80`}}/>
-                {calculatedAvgLatency!==null&&(
-                  <ReferenceLine y={calculatedAvgLatency} stroke="#7c3aed" strokeDasharray="5 4" strokeWidth={1.5}
-                    label={{value:`Avg: ${calculatedAvgLatency}ms`,position:'insideTopRight',fontSize:10,fill:'#7c3aed',fontWeight:700,offset:10}}/>
+                {calculatedAvgLatency !== null && (
+                  <ReferenceLine
+                    y={calculatedAvgLatency}
+                    stroke="#7c3aed" strokeDasharray="5 4" strokeWidth={1.5}
+                    label={isMobile ? undefined : {
+                      value:`Avg: ${calculatedAvgLatency}ms`,
+                      position:'insideTopRight',fontSize:10,
+                      fill:'#7c3aed',fontWeight:700,offset:10,
+                    }}
+                  />
                 )}
-                <Bar dataKey="value" fill="url(#rGrad)" radius={[5,5,0,0]} maxBarSize={36}/>
+                <Bar dataKey="value" fill="url(#rGrad)" radius={[5,5,0,0]} maxBarSize={isMobile ? 24 : 36}/>
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
