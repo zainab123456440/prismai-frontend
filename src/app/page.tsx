@@ -340,12 +340,12 @@ export default function Home() {
             <div className={`p-2 rounded-xl transition-all duration-200 ${
               tab === id
                 ? 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md shadow-purple-200'
-                : 'bg-transparent group-hover:bg-purple-50'
+                : 'bg-gray-100 group-hover:bg-purple-50'
             }`}>
               <Icon
                 size={18}
-                className={tab === id ? 'text-white' : 'text-gray-400 group-hover:text-purple-500'}
-                strokeWidth={tab === id ? 2.5 : 1.8}
+                className={tab === id ? 'text-white' : 'text-gray-500 group-hover:text-purple-500'}
+                strokeWidth={tab === id ? 2.5 : 2}
               />
             </div>
             {/* active dot */}
